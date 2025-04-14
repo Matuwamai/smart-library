@@ -5,10 +5,9 @@ import db from "../db/index.js";
 export const register = async (req, res) => {
   try {
     const { fullName, email, password, contact } = req.body;
+
     const existingUser = await db.user.findFirst({
-      where: {
-        email,
-      },
+      where: { email },
     });
 
     if (existingUser) {
@@ -24,27 +23,13 @@ export const register = async (req, res) => {
         contact,
       },
     });
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        contact: user.contact,
-        role: user.role,
-      },
-    });
+    res.status(201).json(user);
   } catch (error) {
-    console.log(error);
+    console.error("Registration error:", error);
     res.status(500).json({ message: "Error in registering user" });
   }
 };
+
 
 export const login = async (req, res) => {
   try {

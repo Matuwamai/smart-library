@@ -13,15 +13,15 @@ const storage = multer.diskStorage({
 
 export const upload = multer({ storage }).single("image");
 
+
 export const createBook = async (req, res) => {
   try {
     const { name, title, auther, categoryId } = req.body;
+    const image = req.file?.filename;
 
-    if (!req.file) {
-      return res.status(400).json({ message: "Book image is required!" });
+    if (!image) {
+      return res.status(400).json({ message: "Image is required" });
     }
-
-    const imageUrl = `/uploads/${req.file.filename}`;
 
     const book = await db.book.create({
       data: {
@@ -29,7 +29,7 @@ export const createBook = async (req, res) => {
         title,
         auther,
         categoryId: Number(categoryId),
-        image: imageUrl,
+        image, 
       },
     });
 
@@ -39,6 +39,7 @@ export const createBook = async (req, res) => {
     res.status(500).json({ message: "Error creating book" });
   }
 };
+
 
 export const listBooks = async (req, res) => {
   try {

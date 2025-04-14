@@ -34,8 +34,7 @@ model Borrow {
   id          Int          @id @default(autoincrement())
   userId      Int
   user        User         @relation(fields: [userId], references: [id])
-  orderItems  BorrowItem[]
-  totalAmount Int
+  borrowItems  BorrowItem[]
   createdAt   DateTime     @default(now())
   status      BorrowStatus @default(PENDING)
 }
@@ -46,9 +45,6 @@ model BorrowItem {
   borrow      Borrow   @relation(fields: [borrowId], references: [id])
   bookId     Int
   book        Book     @relation(fields: [bookId], references: [id])
-  quantity    Int
-  price       Int
-  totalAmount Int
   createdAt   DateTime @default(now())
 }
 

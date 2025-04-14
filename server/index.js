@@ -15,7 +15,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/users",  userRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/borrows", bookRoutes)
+app.use("/api/borrows", borrowRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

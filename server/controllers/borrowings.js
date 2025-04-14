@@ -1,35 +1,27 @@
 import db from "../db/index.js";
 export const createBorrowing = async (req, res) => {
   try {
-    const { userId, items } = req.body;
+    const { userId, bookIds } = req.body;
 
-    if (!userId || !items || items.length === 0) {
-      return res.status(400).json({ message: "User ID and borrow items are required" });
+    if (!userId || !bookIds || !Array.isArray(bookIds) || bookIds.length === 0) {
+      return res.status(400).json({ message: "User ID and book IDs are required" });
     }
-
-    let totalAmount = 0;
-
-    const borrowItemsData = items.map((item) => {
-      const itemTotal = item.price * item.quantity;
-      totalAmount += itemTotal;
-      return {
-        bookId: item.bookId,
-        quantity: item.quantity,
-        price: item.price,
-        totalAmount: itemTotal,
-      };
-    });
 
     const borrow = await db.borrow.create({
       data: {
-        userId,
-        totalAmount,
-        orderItems: {
-          create: borrowItemsData,
+        userId: Number(userId),
+        borrowItems: {
+          create: bookIds.map((bookId) => ({
+            bookId: Number(bookId),
+          })),
         },
       },
       include: {
-        orderItems: true,
+        borrowItems: {
+          include: {
+            book: true,
+          },
+        },
       },
     });
 
@@ -39,6 +31,7 @@ export const createBorrowing = async (req, res) => {
     res.status(500).json({ message: "Failed to create borrowing" });
   }
 };
+
 export const getUserBorrowings = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -46,7 +39,7 @@ export const getUserBorrowings = async (req, res) => {
     const borrowings = await db.borrow.findMany({
       where: { userId: Number(userId) },
       include: {
-        orderItems: {
+        borrowItems: {
           include: {
             book: true,
           },
@@ -71,7 +64,7 @@ export const getBorrowById = async (req, res) => {
       where: { id: Number(borrowId) },
       include: {
         user: true,
-        orderItems: {
+        borrowItems: {
           include: {
             book: true,
           },
@@ -94,7 +87,7 @@ export const getAllBorrowings = async (req, res) => {
       const borrows = await db.borrow.findMany({
         include: {
           user: true,
-          orderItems: {
+          borrowItems: {
             include: { book: true },
           },
         },
